@@ -4,6 +4,7 @@ import appConfig from './config/app.config';
 import cors from 'cors';
 import connectMongoDB from './database/connect-mongo';
 import NotFoundRoute from './middlewares/not-found-route.middleware';
+import errorHandler from './middlewares/error-handler.middleware';
 
 const app = express();
 app.use(express.json());
@@ -24,7 +25,7 @@ app.use(cors({
 }));
 
 app.use(NotFoundRoute);
-
+app.use(errorHandler);
 
 app.listen(appConfig.PORT, () => {
     console.log(`App started at http://localhost:${appConfig.PORT}`);
