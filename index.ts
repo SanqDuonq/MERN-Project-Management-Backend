@@ -2,6 +2,7 @@ import express from 'express';
 import session from 'cookie-session';
 import appConfig from './config/app.config';
 import cors from 'cors';
+import connectMongoDB from './database/connect-mongo';
 
 const app = express();
 app.use(express.json());
@@ -23,4 +24,5 @@ app.use(cors({
 
 app.listen(appConfig.PORT, () => {
     console.log(`App started at http://localhost:${appConfig.PORT}`);
+    connectMongoDB();
 })
