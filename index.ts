@@ -3,8 +3,8 @@ import session from 'cookie-session';
 import appConfig from './config/app.config';
 import cors from 'cors';
 import connectMongoDB from './database/connect-mongo';
-import NotFoundRoute from './middlewares/not-found-route.middleware';
-import errorHandler from './middlewares/error-handler.middleware';
+import NotFoundRoute from './middleware/not-found-route.middleware';
+import errorHandler from './middleware/error-handler.middleware';
 
 const app = express();
 app.use(express.json());
