@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { IRole } from "../interface/role.interface";
 import { Permissions, RoleEnum } from "../enum/role.enum";
-import { RolePermission } from "../utils/role-permission";
+import { RolePermission } from "../util/role-permission";
 
 const RoleSchema = new Schema<IRole>({
     name: {

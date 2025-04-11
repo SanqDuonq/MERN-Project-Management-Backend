@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ITask } from "../interface/task.interface";
-import generateTask from "../utils/generate-task";
+import generateTask from "../util/generate-task";
 import { TaskPriorityEnum, TaskStatusEnum } from "../enum/task.enum";
 
 const TaskSchema = new Schema<ITask>({

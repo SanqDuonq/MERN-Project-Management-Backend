@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { IWorkspace } from "../interface/workspace.interface";
-import generateInvited from "../utils/generate-invited";
+import generateInvited from "../util/generate-invited";
 
 const WorkspaceSchema = new Schema<IWorkspace>({
     name: {
