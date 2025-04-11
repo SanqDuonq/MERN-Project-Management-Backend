@@ -12,6 +12,11 @@ const MemberSchema = new Schema<IMember>({
         required: true,
         ref: 'Workspace'
     },
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Role'
+    },
     joinAt: {
         type: Date,
         default: Date.now
