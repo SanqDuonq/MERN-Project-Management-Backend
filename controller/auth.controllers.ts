@@ -39,6 +39,16 @@ class AuthController {
             }) 
         }) (req, res, next)
     }) 
+
+    logout = asyncError(async(req: Request, res: Response) => {
+        req.session.destroy((err) => {
+            if (err) {
+                console.log('Error session', err);
+                returnRes(res, 500, 'Failed to logged out')
+            }
+        })
+        returnRes(res, 200, 'Logged out successfully')
+    })
 }
 
 export default new AuthController();
