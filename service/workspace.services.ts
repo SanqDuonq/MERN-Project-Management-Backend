@@ -6,7 +6,6 @@ import Workspace from "../model/workspace.model";
 import Member from "../model/member.model";
 import mongoose from "mongoose";
 
-
 class WorkspaceServices {
     private async checkUser(userId: string) {
         const user = await User.findById(userId)
@@ -41,6 +40,15 @@ class WorkspaceServices {
         user!.currentWorkspace = workspace._id as mongoose.Types.ObjectId,
         await user!.save();
         return { workspace };
+    }
+
+    async getAllWorkspace(userId: string) {
+        const membership = await Member.find({userId})
+            .populate('workspaceId')
+            .select('-password')
+            .exec()
+        const workspaces = membership.map((membership) => membership.workspaceId);
+        return {workspaces}; 
     }
 }   
 
