@@ -1,9 +1,10 @@
 import appConfig from "../config/app.config";
 import asyncError from "../util/async-error";
-import { Request,Response } from "express";
+import { Express, NextFunction, Request,Response } from "express";
 import { registerSchema } from "../validation/auth.validation";
 import authServices from "../service/auth.services";
 import returnRes from "../util/return-response";
+import passport from "passport";
 
 class AuthController {
     googleCallback = asyncError(async(req: Request, res: Response) => {
@@ -21,6 +22,23 @@ class AuthController {
         await authServices.registerUser(data);
         returnRes(res, 201, 'Created user successful')
     })
+
+    loginUser = asyncError(async(req: Request, res: Response, next: NextFunction) => {
+        passport.authenticate('local', (err: Error | null, user: Express.User, info: {message: string} | undefined) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                returnRes(res, 401, info?.message || 'Invalid email or password')
+            }
+            req.logIn(user, (err) => {
+                if (err) {
+                    return next(err);
+                }
+                returnRes(res, 200, 'Logged in successfully', user)
+            }) 
+        }) (req, res, next)
+    }) 
 }
 
 export default new AuthController();
