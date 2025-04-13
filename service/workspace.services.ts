@@ -23,6 +23,14 @@ class WorkspaceServices {
         return roleOwner;
     }
 
+    private async checkWorkspace(workspaceId: string) {
+        const workspace = await Workspace.findById(workspaceId);
+        if(!workspace) {
+            throwError(404, 'Workspace not found');
+        }
+        return workspace;
+    }
+
     async createWorkspace(userId: string, data: {name: string, description?: string}) {
         const user = await this.checkUser(userId);
         const roleOwner = await this.checkRole(RoleEnum.OWNER);
@@ -34,10 +42,10 @@ class WorkspaceServices {
         await Member.create({
             userId: user?._id,
             workspaceId: workspace._id,
-            role: roleOwner?._id,
+            role: roleOwner!._id,
             joinAt: new Date()
         })
-        user!.currentWorkspace = workspace._id as mongoose.Types.ObjectId,
+        user!.currentWorkspace = workspace._id as mongoose.Types.ObjectId;
         await user!.save();
         return { workspace };
     }
@@ -48,7 +56,16 @@ class WorkspaceServices {
             .select('-password')
             .exec()
         const workspaces = membership.map((membership) => membership.workspaceId);
-        return {workspaces}; 
+        return { workspaces }; 
+    }
+
+    async getWorkspaceById(workspaceId: string) {
+        const workspace = await this.checkWorkspace(workspaceId);
+        const member = await Member.find({workspaceId}).populate('role');
+        const workspaceWithMember = {...workspace!.toObject(), member}
+        return {
+            workspace: workspaceWithMember
+        }
     }
 }   
 

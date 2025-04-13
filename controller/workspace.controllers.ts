@@ -1,11 +1,12 @@
 import asyncError from "../util/async-error";
 import { Request, Response } from "express";
-import { createWorkspaceSchema } from "../validation/workspace.validation";
+import { createWorkspaceSchema, workspaceIdSchema } from "../validation/workspace.validation";
 import workspaceServices from "../service/workspace.services";
 import returnRes from "../util/return-response";
+import memberServices from "../service/member.services";
 
 class WorkspaceController {
-    create = asyncError(async(req: Request, res: Response) => {
+    createWorkspace = asyncError(async(req: Request, res: Response) => {
         const data = createWorkspaceSchema.parse(req.body);
         const userId = req.user?._id;
         const {workspace} = await workspaceServices.createWorkspace(userId, data);
@@ -16,6 +17,14 @@ class WorkspaceController {
         const userId = req.user?._id;
         const workspace = await workspaceServices.getAllWorkspace(userId);
         returnRes(res, 200, 'Get all workspace user is member successful', workspace);
+    })
+
+    getWorkspaceById = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        await memberServices.getMemberRole(userId, workspaceId);
+        const {workspace} = await workspaceServices.getWorkspaceById(workspaceId);
+        returnRes(res, 200, 'Get workspace successful', workspace);
     })
 
     
