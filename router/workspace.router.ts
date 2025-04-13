@@ -8,6 +8,7 @@ router.post('/create/new', isAuthenticated, workspaceControllers.createWorkspace
 router.get('/all', isAuthenticated, workspaceControllers.getAllWorkspace);
 router.get('/:id', isAuthenticated, workspaceControllers.getWorkspaceById);
 router.get('/member/:id', isAuthenticated, workspaceControllers.getWorkspaceMember);
+router.get('/analytics/:id', isAuthenticated, workspaceControllers.getAnalytics)
 
 
 export default router;

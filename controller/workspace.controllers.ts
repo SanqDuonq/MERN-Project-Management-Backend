@@ -37,6 +37,15 @@ class WorkspaceController {
         const {roles,members} =  await workspaceServices.getWorkspaceMember(workspaceId);
         returnRes(res, 200, 'Get workspace member successful', {roles, members});
     })
+
+    getAnalytics = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+        const {analytics} = await workspaceServices.getWorkspaceAnalytics(workspaceId);
+        returnRes(res, 200, 'Get workspace analytics successful', analytics);
+    })
 }
 
 export default new WorkspaceController();

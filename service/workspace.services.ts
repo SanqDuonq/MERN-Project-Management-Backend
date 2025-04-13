@@ -5,6 +5,8 @@ import Role from "../model/role-permission.model";
 import Workspace from "../model/workspace.model";
 import Member from "../model/member.model";
 import mongoose from "mongoose";
+import Task from "../model/task.model";
+import { TaskStatusEnum } from "../enum/task.enum";
 
 class WorkspaceServices {
     private async checkUser(userId: string) {
@@ -76,6 +78,28 @@ class WorkspaceServices {
             .select('-permissions')
             .lean()
         return { members, roles }
+    }
+
+    async getWorkspaceAnalytics(workspaceId: string) {
+        const current = new Date();
+        const totalTasks = await Task.countDocuments({
+            workspace: workspaceId
+        })
+        const overdueTasks = await Task.countDocuments({
+            workspace: workspaceId,
+            dueDate: { $lt: current},
+            status: { $ne: TaskStatusEnum.DONE}
+        })
+        const completedTasks = await Task.countDocuments({
+            workspace: workspaceId,
+            status: TaskStatusEnum.DONE
+        })
+        const analytics = {
+            totalTasks,
+            overdueTasks, 
+            completedTasks
+        }
+        return { analytics };
     }
 }   
 
