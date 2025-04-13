@@ -7,6 +7,7 @@ import NotFoundRoute from './middleware/not-found-route.middleware';
 import errorHandler from './middleware/error-handler.middleware';
 import authRoutes from './router/auth.router';
 import userRoutes from './router/user.router';
+import workspaceRoutes from './router/workspace.router';
 import './util/passport';
 import passport from 'passport';
 
@@ -35,6 +36,8 @@ app.use(cors({
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/workspace', workspaceRoutes);
+
 app.use(NotFoundRoute);
 app.use(errorHandler);
 
