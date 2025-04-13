@@ -4,8 +4,9 @@ import isAuthenticated from '../middleware/auth.middleware';
 
 const router = express.Router();
 
-router.post('/create/new', isAuthenticated, workspaceControllers.create);
+router.post('/create/new', isAuthenticated, workspaceControllers.createWorkspace);
 router.get('/all', isAuthenticated, workspaceControllers.getAllWorkspace);
+router.get('/:id', workspaceControllers.getWorkspaceById)
 
 
 export default router;
