@@ -67,6 +67,16 @@ class WorkspaceServices {
             workspace: workspaceWithMember
         }
     }
+
+    async getWorkspaceMember(workspaceId: string) {
+        const members = await Member.find({workspaceId})
+            .populate('userId', 'name email profilePicture')
+            .populate('role', 'name')
+        const roles = await Role.find({}, {name: 1, _id: 1})
+            .select('-permissions')
+            .lean()
+        return { members, roles }
+    }
 }   
 
 export default new WorkspaceServices();

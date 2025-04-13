@@ -4,6 +4,8 @@ import { createWorkspaceSchema, workspaceIdSchema } from "../validation/workspac
 import workspaceServices from "../service/workspace.services";
 import returnRes from "../util/return-response";
 import memberServices from "../service/member.services";
+import { roleGuard } from "../util/role-guard";
+import { Permissions } from "../enum/role.enum";
 
 class WorkspaceController {
     createWorkspace = asyncError(async(req: Request, res: Response) => {
@@ -25,9 +27,16 @@ class WorkspaceController {
         await memberServices.getMemberRole(userId, workspaceId);
         const {workspace} = await workspaceServices.getWorkspaceById(workspaceId);
         returnRes(res, 200, 'Get workspace successful', workspace);
-    })
+    })    
 
-    
+    getWorkspaceMember = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY])
+        const {roles,members} =  await workspaceServices.getWorkspaceMember(workspaceId);
+        returnRes(res, 200, 'Get workspace member successful', {roles, members});
+    })
 }
 
 export default new WorkspaceController();
