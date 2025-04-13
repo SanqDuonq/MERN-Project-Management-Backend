@@ -9,6 +9,7 @@ import throwError from "../util/throw-error";
 import Member from "../model/member.model";
 import { ProviderEnum } from "../enum/account.enum";
 import session from "express-session";
+import bcryptjs from "../util/bcryptjs";
 
 class AuthServices {
 	createAccountGoogle = async (data: IGoogle) => {
@@ -79,14 +80,15 @@ class AuthServices {
 		const { email, name, password } = data;
 		const session = await mongoose.startSession();
 		try {
-            session.startTransaction();
+			session.startTransaction();
 			const existUser = await User.findOne({ email }).session(session);
 			if (existUser) {
 				throwError(409, "Email already exist");
 			}
+			const hashPassword = await bcryptjs.hashPassword(password);
 			const user = new User({
 				email,
-				password,
+				password: hashPassword,
 				name,
 			});
 			await user.save({ session });
@@ -126,13 +128,36 @@ class AuthServices {
 			session.endSession();
 			console.log("End session...");
 			return { userId: user._id, workspaceId: workspace._id };
-
 		} catch (error) {
 			await session.abortTransaction();
 			session.endSession();
 			throw error;
-		} 
+		}
 	};
+
+	verifyEmail = async ({
+		email,
+		password,
+		provider = ProviderEnum.EMAIL,
+	}: {
+		email: string;
+		password: string;
+		provider?: string;
+	}) => {
+        const user = await User.findOne({email}).select('+password')
+        if (!user) {
+            throwError(404, 'Email not found');
+        }
+		const isMatch = await bcryptjs.comparePassword(password, String(user!.password));
+        if (!isMatch) {
+            throwError(400, 'Invalid email or password')
+        }
+        const account = await Account.findOne({provider, providerId: email})
+        if (!account) {
+            throwError(400, 'Invalid email or password')
+        }
+        return user;
+    };
 }
 
 export default new AuthServices();
