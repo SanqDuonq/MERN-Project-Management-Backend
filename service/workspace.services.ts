@@ -7,6 +7,7 @@ import Member from "../model/member.model";
 import mongoose from "mongoose";
 import Task from "../model/task.model";
 import { TaskStatusEnum } from "../enum/task.enum";
+import { IRole } from "../interface/role.interface";
 
 class WorkspaceServices {
     private async checkUser(userId: string) {
@@ -25,6 +26,21 @@ class WorkspaceServices {
         return roleOwner;
     }
 
+    private async checkRoleId(roleId: string) {
+        const role = await Role.findById(roleId);
+        if (!role) {
+            throwError(404, 'Role not found')
+        }
+        return role as IRole;
+    }
+
+    private async checkMember(memberId: string, workspaceId: string) {
+        const member = await Member.findOne({userId: memberId, workspaceId: workspaceId});
+        if(!member) {
+            throwError(404, 'Member not found in the workspace')
+        }
+        return member;
+    }
     private async checkWorkspace(workspaceId: string) {
         const workspace = await Workspace.findById(workspaceId);
         if(!workspace) {
@@ -100,6 +116,15 @@ class WorkspaceServices {
             completedTasks
         }
         return { analytics };
+    }
+
+    async changeMemberRole(workspaceId: string, roleId: string, memberId: string) {
+        await this.checkWorkspace(workspaceId);
+        const role = await this.checkRoleId(roleId);
+        const member = await this.checkMember(memberId, workspaceId);
+        member!.role = role;
+        await member!.save(); 
+        return { member };
     }
 }   
 

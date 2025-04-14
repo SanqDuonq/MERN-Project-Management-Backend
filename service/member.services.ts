@@ -25,6 +25,8 @@ class MemberServices {
             role: roleName
         }
     }
+
+    
 }
 
 export default new MemberServices();
