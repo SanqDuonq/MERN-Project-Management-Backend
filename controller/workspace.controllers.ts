@@ -1,6 +1,6 @@
 import asyncError from "../util/async-error";
 import { Request, Response } from "express";
-import { createWorkspaceSchema, workspaceIdSchema } from "../validation/workspace.validation";
+import { changeRoleSchema, createWorkspaceSchema, workspaceIdSchema } from "../validation/workspace.validation";
 import workspaceServices from "../service/workspace.services";
 import returnRes from "../util/return-response";
 import memberServices from "../service/member.services";
@@ -45,6 +45,16 @@ class WorkspaceController {
         roleGuard(role, [Permissions.VIEW_ONLY]);
         const {analytics} = await workspaceServices.getWorkspaceAnalytics(workspaceId);
         returnRes(res, 200, 'Get workspace analytics successful', analytics);
+    })
+
+    changeMemberRole = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.id);
+        const {roleId, memberId} = changeRoleSchema.parse(req.body);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.CHANGE_MEMBER_ROLE]);
+        const {member} = await workspaceServices.changeMemberRole(workspaceId, roleId, memberId);
+        returnRes(res, 200, 'Change member role successful', member!);
     })
 }
 
