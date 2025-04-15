@@ -66,6 +66,15 @@ class WorkspaceController {
         const {workspace} = await workspaceServices.updateWorkspace(workspaceId, name, description);
         returnRes(res, 200, 'Updated workspace successful', workspace!);
     })
+
+    deleteWorkspace = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.DELETE_WORKSPACE]);
+        const {currentWorkspace} = await workspaceServices.deleteWorkspace(workspaceId, userId);
+        returnRes(res, 200, 'Deleted workspace successful', currentWorkspace!);
+    })
 }
 
 export default new WorkspaceController();
