@@ -7,5 +7,5 @@ export interface IUser {
     profilePicture?: string,
     isActive: boolean,
     lastLogin: Date,
-    currentWorkspace: mongoose.Types.ObjectId
+    currentWorkspace: mongoose.Types.ObjectId | null
 }

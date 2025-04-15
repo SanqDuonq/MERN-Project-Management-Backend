@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import Task from "../model/task.model";
 import { TaskStatusEnum } from "../enum/task.enum";
 import { IRole } from "../interface/role.interface";
+import Project from "../model/project.model";
 
 class WorkspaceServices {
     private async checkUser(userId: string) {
@@ -133,6 +134,42 @@ class WorkspaceServices {
         workspace!.description = String(description) || String(workspace?.description)
         await workspace!.save();
         return { workspace }
+    }
+
+    async deleteWorkspace(workspaceId: string, userId: string) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const workspace = await Workspace.findById(workspaceId).session(session);
+            if (!workspace) {
+                throwError(404, 'Workspace not found');
+            }
+            if (workspace!.owner.toString() !== userId) {
+                throwError(401, 'You are not authorized to delete this workspace');
+            }
+            const user = await User.findById(userId).session(session);
+            if (!user) {
+                throwError(404, 'User not found')
+            }
+            await Project.deleteMany({workspace: workspace!._id}).session(session);
+            await Task.deleteMany({workspace: workspace!._id}).session(session);
+            await Member.deleteMany({workspaceId: workspace!._id}).session(session);
+            if (user?.currentWorkspace?.equals(workspaceId)) {
+                const memberWorkspace = await Member.findOne({userId}).session(session);
+                user!.currentWorkspace = memberWorkspace ? memberWorkspace.workspaceId : null;
+                await user.save();
+            }   
+            await workspace!.deleteOne({session});
+            await session.commitTransaction();
+            session.endSession();
+            return {
+                currentWorkspace: user!.currentWorkspace
+            }
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
     }
 }   
 
