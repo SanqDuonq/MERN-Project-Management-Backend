@@ -126,6 +126,14 @@ class WorkspaceServices {
         await member!.save(); 
         return { member };
     }
+
+    async updateWorkspace(workspaceId: string, name: string, description?: string) {
+        const workspace = await this.checkWorkspace(workspaceId);
+        workspace!.name = name || workspace!.name
+        workspace!.description = String(description) || String(workspace?.description)
+        await workspace!.save();
+        return { workspace }
+    }
 }   
 
 export default new WorkspaceServices();

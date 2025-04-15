@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/create/new', isAuthenticated, workspaceControllers.createWorkspace);
 router.put('/change/member/role/:id', isAuthenticated, workspaceControllers.changeMemberRole)
+router.put('/update/:id', isAuthenticated, workspaceControllers.updateWorkspace)
 router.get('/all', isAuthenticated, workspaceControllers.getAllWorkspace);
 router.get('/:id', isAuthenticated, workspaceControllers.getWorkspaceById);
 router.get('/member/:id', isAuthenticated, workspaceControllers.getWorkspaceMember);
