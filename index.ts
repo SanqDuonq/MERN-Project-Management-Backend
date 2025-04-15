@@ -8,6 +8,7 @@ import errorHandler from './middleware/error-handler.middleware';
 import authRoutes from './router/auth.router';
 import userRoutes from './router/user.router';
 import workspaceRoutes from './router/workspace.router';
+import memberRoutes from './router/member.router';
 import './util/passport';
 import passport from 'passport';
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(
     session({
+        name: 'sessions',
         secret: appConfig.SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
@@ -37,6 +39,8 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/workspace', workspaceRoutes);
+app.use('/api/member', memberRoutes);
+
 
 app.use(NotFoundRoute);
 app.use(errorHandler);
