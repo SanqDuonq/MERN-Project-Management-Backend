@@ -9,6 +9,7 @@ import authRoutes from './router/auth.router';
 import userRoutes from './router/user.router';
 import workspaceRoutes from './router/workspace.router';
 import memberRoutes from './router/member.router';
+import projectRoutes from './router/project.router';
 import './util/passport';
 import passport from 'passport';
 
@@ -40,7 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/workspace', workspaceRoutes);
 app.use('/api/member', memberRoutes);
-
+app.use('/api/project', projectRoutes);
 
 app.use(NotFoundRoute);
 app.use(errorHandler);
