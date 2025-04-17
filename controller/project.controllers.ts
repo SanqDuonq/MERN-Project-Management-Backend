@@ -1,7 +1,7 @@
 import asyncError from "../util/async-error";
 import { Request, Response } from "express";
 import { workspaceIdSchema } from "../validation/workspace.validation";
-import { createProjectSchema } from "../validation/project.validation";
+import { createProjectSchema, projectIdSchema } from "../validation/project.validation";
 import memberServices from "../service/member.services";
 import { roleGuard } from "../util/role-guard";
 import { Permissions } from "../enum/role.enum";
@@ -33,6 +33,16 @@ class ProjectController {
                 totalCount, pageSize, pageNumber, totalPages, skip, limit: pageSize
             }
         })
+    })
+
+    getProjectDetail = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        const projectId = projectIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY])
+        const {project} = await projectServices.getProjectDetail(workspaceId, projectId);
+        returnRes(res, 200, 'Get project detail successful', project!);
     })
 }
 
