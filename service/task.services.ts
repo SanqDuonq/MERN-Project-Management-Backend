@@ -42,6 +42,33 @@ class TaskServices {
             task
         }
     }
+
+    async updateTask(workspaceId: string, projectId: string, taskId: string, data: {
+        title: string,
+        description?: string,
+        priority: string,
+        status: string,
+        assignedTo?: string | null,
+        dueDate?: string
+    }) {
+        const project = await Project.findById(projectId); 
+        if (!project || project.workspace.toString() !== workspaceId.toString()) {
+            throwError(404, 'Project not found or does not belong to this workspace')
+        }
+        const task = await Task.findById(taskId);
+        if (!task || task.project.toString() !== projectId.toString()) {
+            throwError(404, 'Task not found or does not belong to this project')
+        }
+        const updatedTask = await Task.findByIdAndUpdate(taskId, {
+            ...data
+        }, {new: true})
+        if (!updatedTask) {
+            throwError(404, 'Failed to update task')
+        }
+        return {
+            task: updatedTask
+        }
+    }
 }
 
 export default new TaskServices();
