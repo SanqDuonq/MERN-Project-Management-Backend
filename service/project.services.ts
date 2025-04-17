@@ -14,6 +14,24 @@ class ProjectServices {
             createdBy: userId
         })
     }
+
+    async getAllProject(workspaceId: string, pageSize: number, pageNumber: number) {
+        const totalCount = await Project.countDocuments({
+            workspace: workspaceId
+        })
+        const skip = (pageNumber - 1) * pageSize;
+        const project = await Project.find({
+            workspace: workspaceId
+        })
+            .skip(skip)
+            .limit(pageSize)
+            .populate('createdBy', '_id name profilePicture')
+            .sort({ createdAt: -1 })
+        const totalPages = Math.ceil(totalCount / pageSize);
+        return {
+            project, totalCount, totalPages, skip
+        }
+    }
 }
 
 export default new ProjectServices();
