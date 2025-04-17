@@ -10,6 +10,7 @@ import userRoutes from './router/user.router';
 import workspaceRoutes from './router/workspace.router';
 import memberRoutes from './router/member.router';
 import projectRoutes from './router/project.router';
+import taskRoutes from './router/task.router';
 import './util/passport';
 import passport from 'passport';
 
@@ -42,6 +43,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/workspace', workspaceRoutes);
 app.use('/api/member', memberRoutes);
 app.use('/api/project', projectRoutes);
+app.use('/api/task', taskRoutes);
 
 app.use(NotFoundRoute);
 app.use(errorHandler);
