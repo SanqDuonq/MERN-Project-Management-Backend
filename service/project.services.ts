@@ -101,6 +101,26 @@ class ProjectServices {
             analytics
         }
     }
+
+    async updateProject(workspaceId: string, projectId: string, data: {
+        emoji?: string, name: string, description?: string
+    }) {
+        const {name, emoji, description} = data;
+        const project = await Project.findOne({
+            _id: projectId,
+            workspace: workspaceId
+        })
+        if (!project) {
+            throwError(404, 'Project not found or does not belong to the specified workspace');
+        }
+        if (emoji) project!.emoji = emoji;
+        if (name) project!.name = name;
+        if (description) project!.description = description
+        await project!.save();
+        return {
+            project
+        }
+    }
 }
 
 export default new ProjectServices();

@@ -8,6 +8,6 @@ router.post('/workspace/:workspaceId/create', isAuthenticated, projectController
 router.get('/workspace/:workspaceId/all', isAuthenticated, projectControllers.getAllProject);
 router.get('/:id/workspace/:workspaceId', isAuthenticated, projectControllers.getProjectDetail);
 router.get('/:id/workspace/:workspaceId/analytics', isAuthenticated, projectControllers.getProjectAnalytics);
-
+router.put('/:id/workspace/:workspaceId/update', isAuthenticated, projectControllers.updateProject);
 
 export default router;
