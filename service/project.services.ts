@@ -1,4 +1,5 @@
 import Project from "../model/project.model";
+import throwError from "../util/throw-error";
 
 class ProjectServices {
     async createProject(workspaceId: string, userId: string, data: {
@@ -30,6 +31,19 @@ class ProjectServices {
         const totalPages = Math.ceil(totalCount / pageSize);
         return {
             project, totalCount, totalPages, skip
+        }
+    }
+
+    async getProjectDetail(workspaceId: string, projectId: string) {
+        const project = await Project.findOne({
+            _id: projectId,
+            workspace: workspaceId
+        }).select('_id emoji name description');
+        if (!project) {
+            throwError(404, 'Project not found or does not belong to the specified workspace')
+        }
+        return {
+            project
         }
     }
 }
