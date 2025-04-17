@@ -65,6 +65,16 @@ class ProjectController {
         const {project} = await projectServices.updateProject(workspaceId, projectId, data);
         returnRes(res, 200, 'Updated project successful', project!);
     })
+
+    deleteProject = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        const projectId = projectIdSchema.parse(req.params.id);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.DELETE_PROJECT]);
+        const {project} = await projectServices.deleteProject(workspaceId, projectId);
+        returnRes(res, 200, 'Deleted project successful', project!);
+    })
 }
 
 

@@ -9,5 +9,6 @@ router.get('/workspace/:workspaceId/all', isAuthenticated, projectControllers.ge
 router.get('/:id/workspace/:workspaceId', isAuthenticated, projectControllers.getProjectDetail);
 router.get('/:id/workspace/:workspaceId/analytics', isAuthenticated, projectControllers.getProjectAnalytics);
 router.put('/:id/workspace/:workspaceId/update', isAuthenticated, projectControllers.updateProject);
+router.delete('/:id/workspace/:workspaceId/delete', isAuthenticated, projectControllers.deleteProject);
 
 export default router;
