@@ -17,7 +17,23 @@ class ProjectController {
         roleGuard(role, [Permissions.CREATE_PROJECT]);
         const project = await projectServices.createProject(workspaceId, userId, data);
         returnRes(res, 200, 'Create project successful', project!);
-    }) 
+    })
+    
+    getAllProject = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const pageNumber = parseInt(req.query.pageNumber as string) || 1;
+        const {project, totalCount, totalPages, skip} = await projectServices.getAllProject(workspaceId, pageSize, pageNumber);
+        returnRes(res, 200, 'Get all project successful', {
+            project, 
+            pagination: {
+                totalCount, pageSize, pageNumber, totalPages, skip, limit: pageSize
+            }
+        })
+    })
 }
 
 export default new ProjectController();
