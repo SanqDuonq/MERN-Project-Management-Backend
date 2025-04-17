@@ -121,6 +121,23 @@ class ProjectServices {
             project
         }
     }
+
+    async deleteProject(workspaceId: string, projectId: string) {
+        const project = await Project.findOne({
+            _id: projectId,
+            workspace: workspaceId
+        })
+        if (!project) {
+            throwError(404, 'Project not found or does not belong to the specified workspace');
+        }
+        await project!.deleteOne();
+        await Task.deleteMany({
+            project: project!._id
+        })
+        return {
+            project
+        }
+    }
 }
 
 export default new ProjectServices();
