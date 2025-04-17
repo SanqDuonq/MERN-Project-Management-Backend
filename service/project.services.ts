@@ -1,5 +1,8 @@
+import mongoose from "mongoose";
 import Project from "../model/project.model";
+import Task from "../model/task.model";
 import throwError from "../util/throw-error";
+import { TaskStatusEnum } from "../enum/task.enum";
 
 class ProjectServices {
     async createProject(workspaceId: string, userId: string, data: {
@@ -44,6 +47,58 @@ class ProjectServices {
         }
         return {
             project
+        }
+    }
+
+    async getProjectAnalytics(workspaceId: string, projectId: string) {
+        const project = await Project.findById(projectId);
+        if (!project || project.workspace.toString() !== workspaceId.toString()) {
+            throwError(404, 'Project not found or does not belong to this workspace')
+        }
+        const currentDate = new Date();
+        const taskAnalytics = await Task.aggregate([
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId)
+                }
+            }, 
+            {
+                $facet: {
+                    totalTasks: [{ $count: 'count'}],
+                    overdueTasks: [
+                        {
+                            $match: {
+                                dueDate: {$lt: currentDate},
+                                status: {
+                                    $ne: TaskStatusEnum.DONE
+                                }
+                            }
+                        },
+                        {
+                            $count: 'count'
+                        }
+                    ],
+                    completedTasks: [
+                        {
+                            $match: {
+                                status: TaskStatusEnum.DONE
+                            }
+                        },
+                        {
+                            $count: 'count'
+                        }
+                    ] 
+                }
+            }
+        ])
+        const _analytics = taskAnalytics[0];
+        const analytics = {
+            totalTasks: _analytics.totalTasks[0]?.count || 0,
+            overdueTasks: _analytics.overdueTasks[0]?.count || 0,
+            completedTasks: _analytics.completedTasks[0]?.count || 0
+        }
+        return {
+            analytics
         }
     }
 }
