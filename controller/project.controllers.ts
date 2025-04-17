@@ -1,7 +1,7 @@
 import asyncError from "../util/async-error";
 import { Request, Response } from "express";
 import { workspaceIdSchema } from "../validation/workspace.validation";
-import { createProjectSchema, projectIdSchema } from "../validation/project.validation";
+import { createProjectSchema, projectIdSchema, updateProjectSchema } from "../validation/project.validation";
 import memberServices from "../service/member.services";
 import { roleGuard } from "../util/role-guard";
 import { Permissions } from "../enum/role.enum";
@@ -54,6 +54,18 @@ class ProjectController {
         const {analytics} = await projectServices.getProjectAnalytics(workspaceId, projectId);
         returnRes(res, 200, 'Get project analytics successful', analytics);
     })
+
+    updateProject = asyncError(async(req: Request, res: Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        const projectId = projectIdSchema.parse(req.params.id);
+        const data = updateProjectSchema.parse(req.body);
+        const userId = req.user?._id;
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.EDIT_PROJECT])
+        const {project} = await projectServices.updateProject(workspaceId, projectId, data);
+        returnRes(res, 200, 'Updated project successful', project!);
+    })
 }
+
 
 export default new ProjectController();
