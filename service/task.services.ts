@@ -69,6 +69,63 @@ class TaskServices {
             task: updatedTask
         }
     }
+
+    async getAllTask(workspaceId: string, filter: {
+        projectId?: string,
+        status?: string[],
+        priority?: string[],
+        assignedTo?: string[],
+        keyword?: string,
+        dueDate?: string
+    }, 
+    pagination: {
+        pageSize: number,
+        pageNumber: number
+    }) {
+        const query: Record<string, any> = {
+            workspace: workspaceId
+        }
+        if (filter.projectId) {
+            query.project = filter.projectId
+        }
+        if (filter.status) {
+            query.status = {$in: filter.status}
+        }
+        if (filter.priority) {
+            query.priority = {$in: filter.priority}
+        }
+        if (filter.assignedTo && filter.assignedTo.length > 0) {
+            query.assignedTo = {$in: filter.assignedTo}
+        }
+        if (filter.keyword && filter.keyword !== undefined) {
+            query.title = {$regex: filter.keyword, $options: 'i'}
+        }
+        if (filter.dueDate) {
+            query.dueDate = {$eq: new Date(filter.dueDate)}
+        }
+        const {pageSize, pageNumber} = pagination;
+        const skip = (pageNumber - 1) * pageSize;
+        const [tasks, totalCount] = await Promise.all([
+            Task.find(query) 
+                .skip(skip)
+                .limit(pageSize)
+                .sort({createdAt: -1})
+                .populate('assignedTo', '_id name profilePicture')
+                .populate('project', '_id emoji name'),
+            Task.countDocuments(query)
+        ])
+        const totalPages = Math.ceil(totalCount / pageSize);
+        return {
+            tasks, 
+            pagination: {
+                pageSize,
+                pageNumber,
+                totalCount,
+                totalPages,
+                skip
+            }
+        }
+    }
 }
 
 export default new TaskServices();
