@@ -71,6 +71,16 @@ class TaskController {
         const task = await taskServices.getDetailTask(workspaceId, projectId, taskId)
         returnRes(res, 200, 'Get detail task successful', task!);
     })
+
+    deleteTask = asyncError(async(req: Request, res: Response) => {
+        const userId = req.user?._id;
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        const taskId = taskIdSchema.parse(req.params.id)
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.DELETE_TASK])
+        await taskServices.deleteTask(workspaceId, taskId);
+        returnRes(res, 200, 'Deleted task successful')
+    })
 }
 
 export default new TaskController();

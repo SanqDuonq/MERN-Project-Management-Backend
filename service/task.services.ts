@@ -142,6 +142,17 @@ class TaskServices {
         }
         return task;
     }
+
+    async deleteTask(workspaceId: string, taskId: string) {
+        const task = await Task.findOneAndDelete({
+            _id: taskId,
+            workspace: workspaceId
+        });
+        if (!task) {
+            throwError(404, 'Task not found or does not belong to the specified workspace')
+        }
+        return;
+    }
 }
 
 export default new TaskServices();
