@@ -126,6 +126,22 @@ class TaskServices {
             }
         }
     }
+
+    async getDetailTask(workspaceId: string, projectId: string, taskId: string) {
+        const project = await Project.findById(projectId);
+        if (!project || project.workspace.toString() !== workspaceId.toString()) {
+            throwError(404, 'Project not found or does not belong to this workspace')
+        }
+        const task = await Task.findOne({
+            _id: taskId,
+            workspace: workspaceId,
+            project: projectId
+        }).populate('assignedTo', '_id name profilePicture')
+        if (!task) {
+            throwError(404, 'Task not found')
+        }
+        return task;
+    }
 }
 
 export default new TaskServices();
