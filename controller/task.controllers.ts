@@ -60,6 +60,17 @@ class TaskController {
         const result = await taskServices.getAllTask(workspaceId, filter, pagination);
         returnRes(res, 200, 'Get all task successful', result);
     })
+
+    getTaskDetail = asyncError(async(req: Request, res: Response) => {
+        const userId = req.user?._id;
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId)
+        const projectId = projectIdSchema.parse(req.params.projectId)
+        const taskId = taskIdSchema.parse(req.params.id)
+        const {role} = await memberServices.getMemberRole(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY])
+        const task = await taskServices.getDetailTask(workspaceId, projectId, taskId)
+        returnRes(res, 200, 'Get detail task successful', task!);
+    })
 }
 
 export default new TaskController();
